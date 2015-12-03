@@ -16,9 +16,9 @@ var doclist_url = 'your_url_here';
 If you already installed GreaseMonkey – click the dropdown next to the monkey icon, “Manage user scripts”. From the page delete the scripts “Knova Document Editor” and “Knova Document editor – next doc”.
 3. Restart Firefox
 4. Download two files 
-	https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/Knova_Document_Editor.user.js
-	https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/Knova_Document_Worklist.user.js
-5. (Optionally) Edit the files if you want to change the message or the worklist.
+	* https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/Knova_Document_Editor.user.js
+	* https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/Knova_Document_Worklist.user.js
+5. *(**Optionally**) Edit the files if you want to change the message or the worklist.*
 5. Open the downloaded files in Firefox (Ctrl+O in Windows)
 	(They have the filenames Knova*.user.js and should be in the downloads directory.)
 	This will prompt you to install the script, click the Install button.
