@@ -12,14 +12,16 @@
 
 // Author: Divya Mahajan
 // Revision: 02-Dec-2015
-//
+// Initial version of worklist.
+// Revision: 03-Dec-2015
+// Shifted the files to Github
+
 
 var base_url = 'http://pww.eureka.aai.ms.philips.com/KanisaSupportCenter';
-var doclist_url = 'https://rv52ig.dm2301.livefilestore.com/y3mJYmDC3OHzULYFT6CNyev_7h93nweGXs_kPHa_0EtfRbZkmccnRyoxTvNBtweFwbonR5fjHZ3lQgmme76PLazpIu2OISf6efCE-BXbgQOmFyap_djOgUqZbMgvaleKk2AcfQ1BOnEWEtr6ieYyZjDDQ/knova_list.json?download&psid=1';//http://localhost/~usd05813/knova_list.json';
+var doclist_url = 'https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/knova_hiss_worklist.js';
 var documentIDs = [
   'No docs'
 ];
-//     https://github.com/kimmobrunfeldt/progressbar.js/blob/master/dist/progressbar.min.js
 
 
 var externalID = $('input[name=documentID]').val();
