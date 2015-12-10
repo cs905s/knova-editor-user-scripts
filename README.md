@@ -10,7 +10,7 @@ var doclist_url = 'your_url_here';
 ```
 
 
-##Installation
+##Installation on Firefox
 1. Download Firefox (https://firefox.com)
 2. Install Greasemonkey addon/extension in Firefox (http://www.wikihow.com/Use-Greasemonkey). Use method 1 to install the add on.
 If you already installed GreaseMonkey – click the dropdown next to the monkey icon, “Manage user scripts”. From the page delete the scripts “Knova Document Editor” and “Knova Document editor – next doc”.
@@ -19,9 +19,19 @@ If you already installed GreaseMonkey – click the dropdown next to the monkey 
 	* https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/Knova_Document_Editor.user.js
 	* https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/Knova_Document_Worklist.user.js
 5. *(**Optionally**) Edit the files if you want to change the message or the worklist.*
-5. Open the downloaded files in Firefox (Ctrl+O in Windows)
+6. Open the downloaded files in Firefox (Ctrl+O in Windows)
 	(They have the filenames Knova*.user.js and should be in the downloads directory.)
 	This will prompt you to install the script, click the Install button.
+
+##Installation on Chrome
+
+1. Install Chrome.
+2. Install [Tampermonkey using these instructions](http://tampermonkey.net/faq.php?version=3.12.58&ext=dhdg&updated=true#Q100).
+3. Open these URLs. Tampermonkey will prompt you to install the user scripts. 
+	* https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/Knova_Document_Editor.user.js
+	* https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/Knova_Document_Worklist.user.js
+5. *(**Optionally**) Edit the files if you want to change the message or the worklist.*
+
 
 
 ##Verify installation
