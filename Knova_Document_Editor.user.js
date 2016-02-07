@@ -8,22 +8,64 @@
 // @require https://cdn.firebase.com/js/client/2.3.2/firebase.js
 // @version     1
 // @grant       none
+// @noframes
 // ==/UserScript==
-var archive_comment = 'This Knova solution has been reviewed and its content has been moved to a validated application for Device master record content. It is no longer available on Knova online.';
+
+
+// Instructions
+// Update the doclist_url
+//   1. Point to a starting document in your browser.
+//   2. The script will load and archive the document and automatically move to the next doc.
+//   If the title begins with ARCHIVE - it skips the document.
+
+var archive_comment = 'This Knova solution document and its attachments have been archived. It is no longer available on Knova online.';
+var doclist_url = 'https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/knova_hiss_worklist.js';
+
+
 var externalID = $('input[name=documentID]').val();
 var workflowID = $('input[name=workflowID').val();
 
 
 function SetNoteFields(zEvent) {
   console.log('Set note fields for externalID:'+externalID+ ' workflowID:'+workflowID);
-  var noteFrame = document.getElementById('frmEdtNotes').contentWindow.document;
-  $('textarea', noteFrame).val(archive_comment);
-  $('form', noteFrame).submit();
-  
+  var noteFrame = document.getElementById('frmEdtNotes');
+  var noteDoc = document.getElementById('frmEdtNotes').contentWindow.document;
+  $('textarea', noteDoc).val(archive_comment);
+  $('form', noteDoc).submit();
+  noteFrame.addEventListener('load',function(e) {
+    console.log('  Notes finished');
+    setTimeout(SetMainDocFields,1500);
+    //SetMainDocFields();
+  })  
 }
 function ArchiveDocument(zEvent) {
   SetNoteFields(zEvent);
-  setTimeout(SetMainDocFields,1000);  
+//  setTimeout(SetMainDocFields,2500);  
+}
+
+
+function resetFormInput(formname,inputname,val)
+{
+  var element=$('form[name=' + formname+'] input[name='+inputname+']');
+  if (element != null)
+  {
+    var original=element.val();
+    element.val(val);
+    return original;
+  }
+}
+
+function resetEditor(editorID,val)
+{
+  var editor=document.getElementById(editorID);
+  if (editor==null) {
+    return;
+  }
+  try {
+    editor.contentWindow.document.body.innerHTML=val;
+  } catch(err) {
+    console.log('    '+editorID+': cannot reset - '+err);
+  }   
 }
 function SetMainDocFields(zEvent) {
   /*--- For our dummy action, we'll just add a line of text to the top
@@ -39,13 +81,37 @@ function SetMainDocFields(zEvent) {
   } else {
     $('input[name=title]').val(new_title);
   }
-  document.getElementById('idContentobj0').contentWindow.document.body.innerHTML=archive_comment;
-  document.getElementById('idContentobj1').contentWindow.document.body.innerHTML=archive_comment;
-  document.getElementById('idContentobj2').contentWindow.document.body.innerHTML="<br>";
-  document.getElementById('idContentobj3').contentWindow.document.body.innerHTML="<br>";
-  document.getElementById('idContentobj4').contentWindow.document.body.innerHTML="<br>";
-  document.getElementById('idContentobj7').contentWindow.document.body.innerHTML="<br>";
-  document.getElementById('idContentobj8').contentWindow.document.body.innerHTML="<br>";
+  console.log('Step 2');
+  try {
+    resetEditor('idContentobj0',archive_comment);
+    resetEditor('idContentobj1',archive_comment);
+    resetEditor('idContentobj2',"<br>");
+    resetEditor('idContentobj3',"<br>");
+    resetEditor('idContentobj4',"<br>");
+    resetEditor('idContentobj5',"<br>");  // Not in original code
+    resetEditor('idContentobj6',"<br>");  // Not in original code
+    resetEditor('idContentobj7',"<br>");
+    resetEditor('idContentobj8',"<br>");
+    resetEditor('idContentobj9',"<br>");
+    resetEditor('idContentobj10',"<br>");
+    resetEditor('idContentobj11',"<br>");
+  } catch(err) {
+    console.log('  Step 2:'+err);
+  }
+  // form[name="editDocForm"] input[name="workflowID"]
+  console.log('Step 3');
+  try {
+    var origAttachIDs=resetFormInput('editDocForm','attachIDs',"");
+    resetFormInput('editDocForm','attachIDs',"");
+    resetFormInput('editDocForm','attachFilenames',"");
+    resetFormInput('editDocForm','attachSizes',"");
+    resetFormInput('editDocForm','attachToRemove',origAttachIDs);
+    console.log('  Original attachments:'+origAttachIDs);
+  } catch(err1) {
+    console.log('  Error:'+err1);
+  }
+  
+
   /*
   This way caused errors forcing the changes to be discarded.
   $('input[name=act]').val('save');
@@ -58,9 +124,10 @@ function SetMainDocFields(zEvent) {
   $('input[name=XMLPartsUsed').val('&nbsp;');
   */
   //$('form[name=editDocForm]').submit();
+  unsafeWindow.contentChanged();
+  console.log('Doc is being saved');
   unsafeWindow.saveDoc(); // This is the method called when you click Save draft.
-  unsafeWindow.previewDoc();
-  console.log('Doc saved');
+  //unsafeWindow.previewDoc();
   
 }
 // User interface setup
@@ -77,37 +144,85 @@ function setup_button()
   console.log('New buttons inserted into the document');
 }
 
-setup_button();
 
-// Rest of this is not really needed but it is cool so I left it here.
-function multilineStr(dummyFunc) {
-  var str = dummyFunc.toString();
-  str = str.replace(/^[^\/]+\/\*!?/, '') // Strip function () { /*!
-  .replace(/\s*\*\/\s*\}\s*$/, '') // Strip */ }
-  .replace(/\/\/.+$/gm, '') // Double-slash comments wreck CSS. Strip them.
-  ;
-  return str;
+
+var base_url = 'http://pww.eureka.aai.ms.philips.com/KanisaSupportCenter';
+var documentIDs = [
+  'No docs'
+];
+var externalID = $('input[name=documentID]').val();
+var nextDocID = '';
+function JumpToNextDocument()
+{
+  //window.alert(nextDocID);
+  window.location = base_url + '/authoring/editDocument.do?externalID=' + nextDocID;
+}
+function LastDocument()
+{
+  window.alert('You are on the last document in the worklist.');
 }
 
-GM_addStyle(multilineStr(function () { /*!
-    #myContainer {
-        position:               absolute;
-        top:                    0;
-        left:                   0;
-        font-size:              20px;
-        background:             orange;
-        border:                 3px outset black;
-        margin:                 5px;
-        opacity:                0.9;
-        z-index:                222;
-        padding:                5px 20px;
-    }
-    #myButton {
-        cursor:                 pointer;
-    }
-    #myContainer p {
-        color:                  red;
-        background:             white;
-    }
-  */
-}));
+function LoadDocumentIDs() {
+  var section = $('<div id="myContainer2" ><div id="nextDocMessage" class="body"></div></div>');
+  $('span.header3').append(section);
+  if (unsafeWindow.documentIDs) {
+    documentIDs = unsafeWindow.documentIDs;
+    console.log(documentIDs.length + ' document IDs loaded from cache ');
+    setup_button();
+  } else {
+    $.ajax({
+      dataType: 'json',
+      url: doclist_url
+    }).done(function (data, textStatus, jqXHR) {
+      documentIDs = data;
+      unsafeWindow.documentIDs = data;
+      console.log(documentIDs.length + ' document IDs loaded from list at '+doclist_url);
+      setup_Nextbutton();
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+      console.log('Could not load document IDs - '+doclist_url + ' : ' + errorThrown);
+      document.getElementById('nextDocMessage').innerHTML = 'Next document not available. Could not load document IDs - ' + textStatus;
+    });
+  }
+  
+}
+
+function setup_Nextbutton()
+{
+  var disableNextButton = true;
+  var i = documentIDs.indexOf(externalID);
+  var message = '';
+  if (i < 0) {
+    message = 'Editing ' + externalID + '. This is not in the worklist.';
+    document.getElementById('nextDocMessage').innerHTML = message;
+  } else if (i == (documentIDs.length - 1))
+  {
+    message = 'Editing ' + externalID + '. Last document';
+    document.getElementById('nextDocMessage').innerHTML = message;
+  } else {
+    i = i + 1;
+    message = ' Editing ' + externalID + ', the next document is ' + documentIDs[i] + '. You are on ' + i + ' out of ' + documentIDs.length + '.';
+    nextDocID = documentIDs[i];
+    document.getElementById('nextDocMessage').innerHTML = message;
+    $('div#myContainer2').append('<button id="myNextDocumentButton" type="button">Next document (' + nextDocID + ')</button>');
+    document.getElementById('myNextDocumentButton').addEventListener('click', JumpToNextDocument, false);
+    JumpToNextDocument();
+  }
+  //setup_progress(i, documentIDs.length);
+
+}
+
+
+function localMain() {
+  setup_button();
+  var old_title = $('input[name=title]').val();
+  var new_title = 'ARCHIVE - ' + old_title;
+  if (old_title.substring(0,7)!='ARCHIVE') 
+  {
+    // Auto archive.
+    ArchiveDocument();
+  } else {
+    LoadDocumentIDs();
+  }
+}
+
+localMain();

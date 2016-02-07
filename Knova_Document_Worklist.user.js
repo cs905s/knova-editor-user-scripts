@@ -7,6 +7,7 @@
 // @require     http://code.jquery.com/jquery-2.1.4.js
 // @version     1
 // @grant       none
+// @noframes
 // ==/UserScript==
 
 
@@ -15,6 +16,7 @@
 // Initial version of worklist.
 // Revision: 03-Dec-2015
 // Shifted the files to Github
+// NoFrames added to avoid reloading 8 times!!!
 
 
 var base_url = 'http://pww.eureka.aai.ms.philips.com/KanisaSupportCenter';
@@ -28,7 +30,7 @@ var externalID = $('input[name=documentID]').val();
 var nextDocID = '';
 function JumpToNextDocument()
 {
-  window.alert(nextDocID);
+  //window.alert(nextDocID);
   window.location = base_url + '/authoring/editDocument.do?externalID=' + nextDocID;
 }
 function LastDocument()
@@ -43,7 +45,6 @@ function setup_button()
   if (i < 0) {
     message = 'Editing ' + externalID + '. This is not in the worklist.';
     document.getElementById('nextDocMessage').innerHTML = message;
-    return;
   } else if (i == (documentIDs.length - 1))
   {
     message = 'Editing ' + externalID + '. Last document';
@@ -87,22 +88,24 @@ function LoadDocumentIDs() {
     console.log(documentIDs.length + ' document IDs loaded from cache ');
     setup_button();
   } else {
-    console.log('Loading IDs');
     $.ajax({
-      dataType: 'jsonp',
-      jsonpCallback: 'data_callback',
+      dataType: 'json',
       url: doclist_url
     }).done(function (data, textStatus, jqXHR) {
       documentIDs = data;
       unsafeWindow.documentIDs = data;
-      console.log(documentIDs.length + ' document IDs loaded. ');
+      console.log(documentIDs.length + ' document IDs loaded from list at '+doclist_url);
       setup_button();
     }).fail(function (jqXHR, textStatus, errorThrown) {
-      window.alert('Could not load document IDs - ' + textStatus);
+      console.log('Could not load document IDs - '+doclist_url + ' : ' + errorThrown);
       document.getElementById('nextDocMessage').innerHTML = 'Next document not available. Could not load document IDs - ' + textStatus;
     });
   }
   
 }
-LoadDocumentIDs();
-console.log("Loading");
+
+window.addEventListener("load",LocalMain,false);
+function LocalMain() 
+{
+  LoadDocumentIDs();
+}
