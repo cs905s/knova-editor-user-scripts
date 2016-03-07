@@ -7,21 +7,11 @@
 // @require     http://code.jquery.com/jquery-2.1.4.js
 // @require https://cdn.firebase.com/js/client/2.3.2/firebase.js
 // @version     1
-// @grant       none
+// @grant       GM_setValue
+// @grant       GM_getValue
 // @noframes
 // ==/UserScript==
-
-
-// Instructions
-// Update the doclist_url
-//   1. Point to a starting document in your browser.
-//   2. The script will load and archive the document and automatically move to the next doc.
-//   If the title begins with ARCHIVE - it skips the document.
-
-var archive_comment = 'This Knova solution document and its attachments have been archived. It is no longer available on Knova online.';
-var doclist_url = 'https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/knova_hiss_worklist.js';
-
-
+var archive_comment = 'This Knova solution has been archived.  Please contact BIU T3 CS support through normal channels when legacy information is needed that has been previously contained by Knova.';
 var externalID = $('input[name=documentID]').val();
 var workflowID = $('input[name=workflowID').val();
 
@@ -126,7 +116,8 @@ function SetMainDocFields(zEvent) {
   //$('form[name=editDocForm]').submit();
   unsafeWindow.contentChanged();
   console.log('Doc is being saved');
-  unsafeWindow.saveDoc(); // This is the method called when you click Save draft.
+  //unsafeWindow.saveDoc(); // This is the method called when you click Save draft.
+  unsafeWindow.submitDoc();
   //unsafeWindow.previewDoc();
   
 }
@@ -147,6 +138,9 @@ function setup_button()
 
 
 var base_url = 'http://pww.eureka.aai.ms.philips.com/KanisaSupportCenter';
+// https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/worklists/test_script.js
+//var doclist_url = 'https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/knova_hiss_worklist.js';
+var doclist_url = 'https://raw.githubusercontent.com/cs905s/knova-editor-user-scripts/master/worklists/test_script.js';
 var documentIDs = [
   'No docs'
 ];
@@ -185,7 +179,14 @@ function LoadDocumentIDs() {
   }
   
 }
-
+function setMessage(message)
+{
+   try {
+     document.getElementById('nextDocMessage').innerHTML = message;
+   } catch (e) {
+     
+   }
+}
 function setup_Nextbutton()
 {
   var disableNextButton = true;
@@ -193,18 +194,24 @@ function setup_Nextbutton()
   var message = '';
   if (i < 0) {
     message = 'Editing ' + externalID + '. This is not in the worklist.';
-    document.getElementById('nextDocMessage').innerHTML = message;
+    setMessage(message);
   } else if (i == (documentIDs.length - 1))
   {
     message = 'Editing ' + externalID + '. Last document';
-    document.getElementById('nextDocMessage').innerHTML = message;
+    setMessage(message);
+    console.log(message);
   } else {
     i = i + 1;
     message = ' Editing ' + externalID + ', the next document is ' + documentIDs[i] + '. You are on ' + i + ' out of ' + documentIDs.length + '.';
     nextDocID = documentIDs[i];
-    document.getElementById('nextDocMessage').innerHTML = message;
-    $('div#myContainer2').append('<button id="myNextDocumentButton" type="button">Next document (' + nextDocID + ')</button>');
-    document.getElementById('myNextDocumentButton').addEventListener('click', JumpToNextDocument, false);
+    setMessage(message);
+    console.log(message);
+    try {
+      $('div#myContainer2').append('<button id="myNextDocumentButton" type="button">Next document (' + nextDocID + ')</button>');
+      document.getElementById('myNextDocumentButton').addEventListener('click', JumpToNextDocument, false);      
+    } catch (e) {
+      console.log('Knova_Document_Editor: setup_NextButton: Failed to add next button to DOM',e);
+    }
     JumpToNextDocument();
   }
   //setup_progress(i, documentIDs.length);
@@ -213,14 +220,24 @@ function setup_Nextbutton()
 
 
 function localMain() {
-  setup_button();
-  var old_title = $('input[name=title]').val();
-  var new_title = 'ARCHIVE - ' + old_title;
-  if (old_title.substring(0,7)!='ARCHIVE') 
+  if (typeof externalID == 'string')
   {
-    // Auto archive.
-    ArchiveDocument();
+    console.log('External ID:'+externalID+' saved to local storage.')
+    GM_setValue('externalID',externalID);
+    setup_button();
+
+    var old_title = $('input[name=title]').val();
+    var new_title = 'ARCHIVE - ' + old_title;
+    if (old_title.substring(0,7)!='ARCHIVE') 
+    {
+      // Auto archive.
+      ArchiveDocument();
+    } else {
+      LoadDocumentIDs();
+    }
   } else {
+    externalID=GM_getValue('externalID',0)
+    console.log('External ID:'+externalID+' loaded from local storage.')
     LoadDocumentIDs();
   }
 }
